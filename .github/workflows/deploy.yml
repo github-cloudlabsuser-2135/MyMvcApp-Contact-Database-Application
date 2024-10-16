@@ -1,0 +1,44 @@
+name: Deploy ASP.NET Core App to Azure
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '6.0.x'
+
+    - name: Install dependencies
+      run: dotnet restore
+
+    - name: Build
+      run: dotnet build --configuration Release --no-restore
+
+    - name: Publish
+      run: dotnet publish --configuration Release --output ./publish --no-build
+
+    - name: 'Login via Azure CLI'
+      run: |
+        az login --service-principal -u ${{ secrets.AZURE_USERNAME }} -p ${{ secrets.AZURE_PASSWORD }} --tenant ${{ secrets.AZURE_TENANT_ID }}
+
+    - name: 'Deploy ARM Template'
+      run: |
+        az group create --name ${{ secrets.AZURE_RESOURCE_GROUP }} --location "West US"
+        az deployment group create --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --template-file deployment/azuredeploy.json --parameters deployment/azuredeploy.parameters.json
+
+    - name: 'Zip Published Files'
+      run: zip -r publish.zip ./publish
+
+    - name: 'Deploy to Azure Web App'
+      run: |
+        az webapp deploy --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name ${{ secrets.AZURE_WEBAPP_NAME }} --src-path publish.zip --type zip
