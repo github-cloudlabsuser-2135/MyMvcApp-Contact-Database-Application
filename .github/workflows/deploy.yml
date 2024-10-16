@@ -40,4 +40,4 @@ jobs:
 
     - name: 'Deploy to Azure Web App'
       run: |
-        az webapp deploy --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name ${{ secrets.AZURE_WEBAPP_NAME }} --src-path publish.zip --type zip
+        az webapp deploy --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name myWebAppRafal --src-path publish.zip --type zip
