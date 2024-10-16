@@ -29,7 +29,7 @@ jobs:
 
     - name: 'Login via Azure CLI'
       run: |
-        az login --service-principal -u ${{ secrets.AZURE_USERNAME }} -p ${{ secrets.AZURE_PASSWORD }} --tenant ${{ secrets.AZURE_TENANT_ID }}
+        az login -u ${{ secrets.AZURE_USERNAME }} -p ${{ secrets.AZURE_PASSWORD }}
 
     - name: 'Deploy ARM Template'
       run: |
